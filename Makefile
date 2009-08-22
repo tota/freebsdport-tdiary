@@ -16,11 +16,9 @@ MAINTAINER=	tota@FreeBSD.org
 COMMENT=	A Web-based diary system (like weblog) written in Ruby
 
 NO_BUILD=	yes
-CONFLICTS?=	ja-tdiary-[0-9]*
-PKGMESSAGE=	${WRKDIR}/pkg-message
 USE_RUBY=	yes
 RUBY_VER=	1.8
-RUBY_REQUIRE=   Ruby >= 182
+RUBY_REQUIRE=	Ruby >= 182
 PORTSCOUT=	limitw:1,even
 
 RUBY_SHEBANG_FILES=	index.rb \
@@ -39,8 +37,14 @@ PORTDOCS=	ChangeLog COPYING HOWTO-make-io.rd HOWTO-make-plugin.html \
 		HOWTO-write-tDiary.en.html HOWTO-write-tDiary.html INSTALL.html \
 		README.en.html README.html UPGRADE doc.css
 
-SUB_FILES=	pkg-message
+SUB_FILES=	pkg-message tdiaryinst.rb
+SUB_LIST+=	TDIARY_LANG=${TDIARY_LANG} \
+		TDIARY_SCRIPT=${TDIARY_SCRIPT}
 WRKSRC=		${WRKDIR}/${PORTNAME}-${PORTVERSION}
+DOCSDIR=	${PREFIX}/share/doc/${UNIQUENAME}
+WWWDIR=		${PREFIX}/www/${UNIQUENAME}
+
+TDIARY_SCRIPT=	${UNIQUENAME}-inst.rb
 
 #TDIARY_LANG	ja:Japanese en:English zh:Traditional-Chinese
 .if !defined(TDIARY_LANG) || ( defined(TDIARY_LANG) && ${TDIARY_LANG} != ja )
@@ -63,16 +67,17 @@ post-extract:
 	@cd ${WRKSRC} && ${RM} -f README && ${MV} ChangeLog doc
 	@cd ${WRKSRC} && ${MV} doc ${WRKDIR}
 
-do-install:
-	@-${MKDIR} ${EXAMPLESDIR}
+pre-install:
 	@${SED} -e 's,#!/usr/bin/env ruby,#!${RUBY},' \
-		-e 's,@@@@PREFIX@@@@,${PREFIX},g' \
-		-e 's,@@@@TDIARY@@@@,${PORTNAME}${PKGNAMESUFFIX},g' \
-		-e 's,@@@@LANG@@@@,${TDIARY_LANG},g' \
-		${FILESDIR}/tdiaryinst.rb.in > ${EXAMPLESDIR}/tdiaryinst.rb
-	@(cd ${WRKSRC} && ${COPYTREE_SHARE} . ${EXAMPLESDIR})
+		${WRKDIR}/tdiaryinst.rb > ${WRKDIR}/${TDIARY_SCRIPT}
+
+do-install:
+	@${INSTALL_SCRIPT} ${WRKDIR}/${TDIARY_SCRIPT} ${PREFIX}/bin
+	@-${MKDIR} ${WWWDIR}
+	@(cd ${WRKSRC} && ${COPYTREE_SHARE} . ${WWWDIR})
 
 post-install:
+	@${ECHO_CMD} bin/${TDIARY_SCRIPT} >> ${TMPPLIST}
 .if !defined(NOPORTDOCS)
 	@${INSTALL} -d ${DOCSDIR}
 	@cd ${WRKDIR}/doc && ${INSTALL_DATA} ${PORTDOCS} ${DOCSDIR}
