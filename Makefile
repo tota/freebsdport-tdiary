@@ -2,14 +2,14 @@
 # Date created:                 21 May 2003
 # Whom:                         Fumihiko Kimura <jfkimura@yahoo.co.jp>
 #
-# $FreeBSD: ports/www/tdiary/Makefile,v 1.22 2008/03/04 18:41:27 beech Exp $
+# $FreeBSD: ports/www/tdiary/Makefile,v 1.23 2009/08/22 00:38:27 amdmi3 Exp $
 #
 
 PORTNAME=	tdiary
 PORTVERSION=	2.2.2
 CATEGORIES?=	www ruby
-MASTER_SITES=	SF \
-		http://www.tdiary.org/download/
+MASTER_SITES=	http://www.tdiary.org/download/ \
+		SF
 DISTNAME=	${PORTNAME}-full-${PORTVERSION}
 
 MAINTAINER=	tota@FreeBSD.org
